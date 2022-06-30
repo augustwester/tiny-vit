@@ -6,8 +6,6 @@ from torchvision.datasets import CIFAR10
 from torchvision import transforms
 from vit import ViT
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
 transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -28,7 +26,9 @@ num_patches = (img_size // patch_size) ** 2
 patch_dim = 3 * patch_size ** 2
 depth = 4
 
-vit = ViT(depth, num_patches, patch_size, patch_dim, latent_dim=64, mlp_dim=512, num_classes=len(classes))
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+vit = ViT(depth, num_patches, patch_size, patch_dim, latent_dim=64, mlp_dim=256, num_classes=len(classes))
 vit.to(device)
 
 opt = Adam(vit.parameters(), lr=1e-4)

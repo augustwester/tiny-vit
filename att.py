@@ -3,7 +3,7 @@ from torch.nn.functional import softmax
 from einops import rearrange
 
 class Attention(nn.Module):
-    def __init__(self, embed_dim, num_heads=8, latent_dim=64, dropout=0):
+    def __init__(self, embed_dim, num_heads, latent_dim, dropout=0):
         super().__init__()
         self.num_heads = num_heads
         self.W = nn.Linear(embed_dim, 3 * num_heads * latent_dim, bias=False)

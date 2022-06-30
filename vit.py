@@ -6,7 +6,7 @@ from ff import FeedForward
 from einops import rearrange
 
 class ViT(nn.Module):
-    def __init__(self, depth, num_patches, patch_size, patch_dim, latent_dim, mlp_dim, num_classes):
+    def __init__(self, depth, num_patches, patch_size, patch_dim, latent_dim, mlp_dim, num_classes, dropout=0):
         super().__init__()
         self.patch_size = patch_size
         self.patch_to_embed = nn.Linear(patch_dim, latent_dim)
@@ -21,8 +21,8 @@ class ViT(nn.Module):
 
         for _ in range(depth):
             norm = LayerNorm(latent_dim)
-            att = Attention(latent_dim)
-            ff = FeedForward(latent_dim, mlp_dim)
+            att = Attention(latent_dim, num_heads=8, latent_dim=latent_dim, dropout=dropout)
+            ff = FeedForward(latent_dim, mlp_dim, dropout)
             self.layers.append(nn.ModuleList([norm, att, ff]))
 
     def forward(self, x):
@@ -38,12 +38,3 @@ class ViT(nn.Module):
         
         cls_tokens = x[:, 0]
         return self.classification_head(cls_tokens)
-
-img_size = 32
-patch_size = 4
-num_patches = (img_size // patch_size) ** 2
-patch_dim = 3 * patch_size ** 2
-depth = 12
-
-x = torch.randn(256, 3, 32, 32)
-vit = ViT(depth, num_patches, patch_size, patch_dim, latent_dim=64, mlp_dim=512, num_classes=10)
