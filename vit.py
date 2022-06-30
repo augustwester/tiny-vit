@@ -36,7 +36,7 @@ class ViT(nn.Module):
             x = att(norm(x)) + x
             x = ff(x) + x
         
-        cls_tokens = x[:, 0, :]
+        cls_tokens = x[:, 0]
         return self.classification_head(cls_tokens)
 
 img_size = 32
