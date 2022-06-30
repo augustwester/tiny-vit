@@ -3,12 +3,12 @@ from torch.nn.functional import softmax
 from einops import rearrange
 
 class Attention(nn.Module):
-    def __init__(self, embed_dim, num_heads, latent_dim, dropout=0):
+    def __init__(self, dim, num_heads, dim_head, dropout=0):
         super().__init__()
         self.num_heads = num_heads
-        self.W = nn.Linear(embed_dim, 3 * num_heads * latent_dim, bias=False)
-        self.scale = 1 / latent_dim ** 0.5
-        self.out = nn.Linear(latent_dim * num_heads, embed_dim, bias=False)
+        self.W = nn.Linear(dim, 3 * num_heads * dim_head, bias=False)
+        self.scale = 1 / dim_head ** 0.5
+        self.out = nn.Linear(dim_head * num_heads, dim, bias=False)
         self.dropout = nn.Dropout(dropout)
     
     def forward(self, x):

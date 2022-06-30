@@ -6,23 +6,23 @@ from ff import FeedForward
 from einops import rearrange
 
 class ViT(nn.Module):
-    def __init__(self, depth, num_patches, patch_size, patch_dim, latent_dim, mlp_dim, num_classes, dropout=0):
+    def __init__(self, depth, num_patches, patch_size, patch_dim, embed_dim, mlp_dim, num_classes, dropout=0):
         super().__init__()
         self.patch_size = patch_size
-        self.patch_to_embed = nn.Linear(patch_dim, latent_dim)
-        self.pos_embedding = nn.Parameter(torch.randn(num_patches + 1, latent_dim))
-        self.cls = nn.Parameter(torch.randn(1, 1, latent_dim))
+        self.patch_to_embed = nn.Linear(patch_dim, embed_dim)
+        self.pos_embedding = nn.Parameter(torch.randn(1, num_patches + 1, embed_dim))
+        self.cls = nn.Parameter(torch.randn(1, 1, embed_dim))
         self.layers = nn.ModuleList([])
         
         self.classification_head = nn.Sequential(
-            nn.LayerNorm(latent_dim),
-            nn.Linear(latent_dim, num_classes)
+            nn.LayerNorm(embed_dim),
+            nn.Linear(embed_dim, num_classes)
         )
 
         for _ in range(depth):
-            norm = LayerNorm(latent_dim)
-            att = Attention(latent_dim, num_heads=8, latent_dim=latent_dim, dropout=dropout)
-            ff = FeedForward(latent_dim, mlp_dim, dropout)
+            norm = LayerNorm(embed_dim)
+            att = Attention(embed_dim, num_heads=8, dim_head=64, dropout=dropout)
+            ff = FeedForward(embed_dim, mlp_dim, dropout)
             self.layers.append(nn.ModuleList([norm, att, ff]))
 
     def forward(self, x):
@@ -31,6 +31,7 @@ class ViT(nn.Module):
         embed = self.patch_to_embed(patch)
         cls_tokens = self.cls.repeat(batch_size, 1, 1)
         x = torch.cat((cls_tokens, embed), dim=1)
+        x += self.pos_embedding
 
         for norm, att, ff in self.layers:
             x = att(norm(x)) + x
