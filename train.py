@@ -26,7 +26,7 @@ patch_dim = 3 * patch_size ** 2
 depth = 4
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-vit = ViT(depth, num_patches, patch_size, patch_dim, embed_dim=64, mlp_dim=256, num_classes=len(classes))
+vit = ViT(depth, num_patches, patch_size, patch_dim, embed_dim=64, mlp_dim=256, num_classes=10)
 vit.to(device)
 
 opt = Adam(vit.parameters(), lr=1e-4)
