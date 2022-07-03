@@ -38,4 +38,5 @@ class ViT(nn.Module):
             x = ff(x) + x
         
         cls_tokens = x[:, 0]
-        return self.classification_head(cls_tokens)
+        preds = self.classification_head(cls_tokens)
+        return preds
