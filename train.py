@@ -8,17 +8,19 @@ from vit import ViT
 
 transform = transforms.Compose([
     transforms.ToTensor(),
+    transforms.RandomCrop(32, padding=4),
+    transforms.RandomRotation(10),
+    transforms.RandomHorizontalFlip(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
-batch_size = 256
-num_epochs = 512
+batch_size = 512
+num_epochs = 256
 
 trainset = CIFAR10(root="./data", train=True, download=True, transform=transform)
 testset = CIFAR10(root="./data", train=False, download=True, transform=transform)
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
 testloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
-classes = ["plane", "car", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
 
 img_size = 32
 patch_size = 4
@@ -27,8 +29,7 @@ patch_dim = 3 * patch_size ** 2
 depth = 4
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-vit = ViT(depth, num_patches, patch_size, patch_dim, embed_dim=64, mlp_dim=256, num_classes=len(classes))
+vit = ViT(depth, num_patches, patch_size, patch_dim, embed_dim=64, mlp_dim=256, num_classes=10)
 vit.to(device)
 
 opt = Adam(vit.parameters(), lr=1e-4)
